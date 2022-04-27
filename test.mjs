@@ -5,6 +5,7 @@ const app = express();
 import http from 'http';
 import request from 'request';
 import axios from 'axios';
+import { dirname } from 'path';
 
 const url = /*'https://dev.portal.my.sms-group.com/security/'// */'http://localhost:3002/';
 
@@ -123,11 +124,17 @@ switch(process.argv[2]){
     case '2': getMe(process.argv[3]); break;
     case '3': registerClient();
     case '4': oauthFlowInCustomerPortal();
+    case '0': break;
 }
+console.log(dirname(''))
+app.use(express.static(dirname + './'));
 
-app.get('/reg', (req, res, next) => {
-    console.log("/reg reached");
-    res.send({ ok: 'ok' })
+app.get('/authentication', (req, res, next) => {
+    res.sendFile('C://Users//rodolfo.rezende//Documents//script//gettingAuthorizationCode.html');
+});
+
+app.get('/', (req, res, next) => {
+    res.sendFile('C://Users//rodolfo.rezende//Documents//script//gettingToken.html');
 });
 
 const httpServer = http.createServer(app)
