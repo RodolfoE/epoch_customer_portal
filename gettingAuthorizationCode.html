@@ -135,7 +135,7 @@ function decodeUri(qs, sep, eq, options) {
         redirect_uri: "http://localhost:8083",
       });
       const dataSubmit = await fetch(
-        `http://localhost:8080/security/api/auth/oidc/token`,
+        `http://localhost:3002/api/auth/oidc/token`,
         {
           method: "POST",
           headers: {
@@ -158,7 +158,7 @@ function decodeUri(qs, sep, eq, options) {
   
 const getMe = async (access_token) => {
     try{
-        const dataSubmit = await fetchNode(`http://localhost:8080/security/api/auth/oidc/me?access_token=${access_token}`, 
+        const dataSubmit = await fetchNode(`http://localhost:3002/api/auth/oidc/me?access_token=${access_token}`, 
         {
             "method": "GET"
         });
@@ -172,16 +172,20 @@ const getMe = async (access_token) => {
 }
     </script>
     <script>
+      
+      let client_id = '38';
+      let client_secret = 'iLGqwGmSYsQjvhhZ5V5flHeXFNFVUzpsvUCpHubhWiJByhraEjZCJZ-cpUMO0xvAMsejemUdBQyLPez1CZtK7w';
+      let url = 'http://localhost:3002/'; //'https://dev.portal.my.sms-group.com/security/'
         const queryStg = querystring({
-              client_id: '1',
+              client_id,
               response_mode: 'fragment',
               redirect_uri: 'http://localhost:8083',
               response_type: 'code',
               grant_type:'authorization_code',
-              scope: 'openid profile',
-              client_secret: '2xWMUibc_PoCAtFxqRu8Qs1bXXZRC-XdXPhHlm-xjuabmoHtm8kFUC9d-B1H9Ur6sgjWi1jXlwDxUDO-dBUCeQ'
+              scope: 'openid profile offline_access',
+              client_secret
             });
-        window.location = `http://localhost:8080/security/api/auth/oidc/auth?${queryStg}`;
+        window.location = `${url}api/auth/oidc/auth?${queryStg}`;
     </script>
 </head>
 <body>

@@ -5,8 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script>
+    <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
 
+    <script>
+        
         var stringifyPrimitive = function (v) {
   switch (typeof v) {
     case "string":
@@ -113,86 +115,58 @@ function decodeUri(qs, sep, eq, options) {
 
   return obj;
 }
-
-/**
- * To get the authorization code locally, use the following url
- * http://localhost:3002/api/auth/oidc/auth
- * To get in dev environment, use
- * https://dev.portal.my.sms-group.com/security/api/auth/oidc/auth
- */
- const getToken = async (url, client_id, client_secret, grant_type="authorization_code", refresh_token) => {
-    try {
-      const queryString = window.location.hash;
-      const { code } = decodeUri(
-        queryString.substring(1, queryString.length - 1)
-      );
-      var postData = querystring({
-        refresh_token,
-        grant_type,
-        code,
-        client_id,
-        client_secret,
-        redirect_uri: "http://localhost:8083",
-      });
-      const dataSubmit = await fetch(
-        `${url}api/auth/oidc/token`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": postData.length,
-            Cookie:
-              "@sms:token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbkB2ZXR0YS5kaWdpdGFsIiwiZmlyc3RfbmFtZSI6IlBsYXRmb3JtIiwibGFzdF9uYW1lIjoiQWRtaW5pc3RyYXRvciIsImlzX2FkbWluIjp0cnVlLCJlbWFpbCI6bnVsbCwic3RhdHVzIjoiQUNUSVZFIiwic2VjdXJpdHkiOnt9LCJpYXQiOjE2NTEwNjc3MzAsImV4cCI6MTY2MDA2NzczMH0.2XjpasespZ-PnDUKmzymm41jVaW7YaXKkBQ75v0WI2U",
-          },
-          body: postData,
-        }
-      );
-
-      const result = await dataSubmit.json();
-      console.log(`${grant_type} Response: `, result);
-      return result;
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  
-const getMe = async (url, access_token) => {
-    try{
-        const dataSubmit = await fetch(`${url}api/auth/oidc/me?access_token=${access_token}`, 
-        {
-            "method": "GET"
-        });
-        const result = await dataSubmit.json();
-        console.log('Get Me Response: ', result);
-    }
-    catch (err){
-        console.log(err);
-    }
-}
     </script>
-    <script>
 
-        const getSetVariables = async (obj= {}) => {
+    <script>
+        const getSetVariables = async (obj={}) => {
             const queryStg = querystring(obj);
             return await fetch(`/GetSetVariables?${queryStg}`);
         }
+
+        const startFlow = async () => {
+            let blankObj = {};
+            const [endpointUrl, client_id, client_secret] = [$('#endpointUrl').val(), $('#client_id').val(), $('#client_secret').val()];
+            endpointUrl && Object.assign(blankObj, { endpointUrl });
+            client_id && Object.assign(blankObj, { client_id });
+            client_secret && Object.assign(blankObj, { client_secret });
+            const response = await getSetVariables(blankObj);
+            redirect(await response.json());
+        }
+
+        const redirect = ({endpointUrl, client_id, client_secret}) => {
+            const queryStg = querystring({
+              client_id,
+              response_mode: 'fragment',
+              redirect_uri: 'http://localhost:8083',
+              response_type: 'code',
+              grant_type:'authorization_code',
+              scope: 'openid profile offline_access',
+              client_secret
+            });
+            window.location = `${endpointUrl}api/auth/oidc/auth?${queryStg}`;
+        }
         (async () => {
             const response = await getSetVariables();
-            const { endpointUrl, client_id, client_secret } = await response.json();  
-          
-            const { access_token, refresh_token } = await getToken(endpointUrl, client_id, client_secret, 'authorization_code');
-            await getMe(endpointUrl, access_token);
-            //const resp = await getToken(endpointUrl, client_id, client_secret, "refresh_token", refresh_token)
-            setTimeout(() => {
-              console.log("shooted")
-              getMe(endpointUrl, access_token);
-            }, 25000)
-            
+            const { endpointUrl, client_id, client_secret } = await response.json();
+            console.log(endpointUrl)
+            $('#endpointUrl').val(endpointUrl);
+            $('#client_id').val(client_id);
+            $('#client_secret').val(client_secret);
         })();
+        
     </script>
 </head>
 <body>
     
+    Enpoint Url
+    <input id="endpointUrl"/><br>
+
+    client_id
+    <input id="client_id"/><br>
+
+    client_secret
+    <input id="client_secret" style="width: 100%;"/><br>
+
+    <button onclick="startFlow()">Start OAuth Flow</button>
 </body>
 </html>

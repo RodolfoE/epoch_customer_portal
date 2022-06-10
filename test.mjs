@@ -6,7 +6,8 @@ import http from 'http';
 import request from 'request';
 import axios from 'axios';
 import { dirname } from 'path';
-
+import dedent from "dedent";
+import npmlog from 'npmlog';
 const url = /*'https://dev.portal.my.sms-group.com/security/'// */'http://localhost:3002/';
 
 
@@ -116,9 +117,6 @@ const registerClient = async () => {
     
 }
 
-
-//console.log(process.argv);
-
 switch(process.argv[2]){
     case '1': getToken(); break;
     case '2': getMe(process.argv[3]); break;
@@ -129,6 +127,27 @@ switch(process.argv[2]){
 console.log(dirname(''))
 app.use(express.static(dirname + './'));
 
+var mClient_id = '38';
+var mClient_secret = 'iLGqwGmSYsQjvhhZ5V5flHeXFNFVUzpsvUCpHubhWiJByhraEjZCJZ-cpUMO0xvAMsejemUdBQyLPez1CZtK7w';
+
+let mEndpointUrl ='http://localhost:3002/'; //  'https://dev.portal.my.sms-group.com/security/'
+app.get('/GetSetVariables', (req, res) => {
+    const { endpointUrl, client_id, client_secret } = req.query;
+    
+    if (endpointUrl)
+        mEndpointUrl = endpointUrl;
+    
+    if (client_id)
+        mClient_id = client_id;
+
+    if (client_secret)
+        mClient_secret = client_secret;
+
+    res.send({ endpointUrl: mEndpointUrl, client_id: mClient_id, client_secret: mClient_secret});
+    
+})
+
+
 app.get('/authentication', (req, res, next) => {
     res.sendFile('C://Users//rodolfo.rezende//Documents//script//gettingAuthorizationCode.html');
 });
@@ -137,21 +156,11 @@ app.get('/', (req, res, next) => {
     res.sendFile('C://Users//rodolfo.rezende//Documents//script//gettingToken.html');
 });
 
+app.get('/presentation', (req, res, next) => {
+    res.sendFile('C://Users//rodolfo.rezende//Documents//script//presentation.html');;
+});
+
 const httpServer = http.createServer(app)
 httpServer.listen(8083, () =>{
     console.log(`Http Server Running on port 8083`)
 })
-
-/**
- * 
-      const result2 = await axios.post(
-        '/security/api/auth/oidc/token',
-        QueryString({
-          client_id: application?.id + '',
-          grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost:3000',
-          client_secret: application?.secret,
-          code: value,
-        }),
-      );
- */

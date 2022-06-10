@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.27.1",
+    "dedent": "^0.7.0",
     "express": "^4.17.3",
     "node-fetch": "^3.2.0",
+    "npmlog": "^6.0.2",
     "querystring": "^0.2.1",
     "request": "^2.88.2"
   }
