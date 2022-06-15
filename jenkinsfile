@@ -24,4 +24,4 @@ sh 'make check || true' ①
 junit '**/target/*.xml' ②
 }
 /* .. snip .. */
-}
+} 
